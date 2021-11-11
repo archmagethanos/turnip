@@ -1,22 +1,22 @@
 using PolynomialRoots
 using DelimitedFiles
-using DataFrames
 
 filepath = "data/q_to_denom_30.csv"
 
 qRootsMatrix, headers = readdlm(filepath, ',', Float64; header=true) 
-print(qRootsMatrix[:,1])
-
+#print(qRootsMatrix[:,3])
 
 function polyRoots(qRootsSource, header)
-    rootsdf = DataFrame()
-    n = size(qRootsSource,1)
-    for i in n
-        r = roots(qRootsSource[:,i])
-        push!(rootsdf, (header[i], r))
+    rootsdict = Dict{String, Vector{Int64}}
+    n = 1
+    for col in eachcol(qRootsSource)
+        #print(col)
+        r = roots(col)
+        rootsdict[header[n]] => r
+        n += 1
     end
-    return rootsdf
     @time r
+    return rootsdict
 end
 
 roots = polyRoots(qRootsMatrix, headers)
