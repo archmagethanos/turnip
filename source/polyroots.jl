@@ -38,6 +38,8 @@ function dictToDataFrame(dict)
     end
 end
 
+# Function takes in a matrix of roots, and their respective headers returning a dictionary (hashmap)
+# of the roots keyed on headers. 
 function polyRoots(qRootsSource, headers)
     global rootsdict = Dict(headers[1]=>[], headers[2]=>[1+0im], headers[3]=>[1+0im], headers[4]=>[0+0im])
     n = 1
@@ -49,7 +51,7 @@ function polyRoots(qRootsSource, headers)
         n += 1
     end  
     return rootsdict
-end
+end 
 
 # function exportDict(exportdict, exportFilePath)
 #     try
