@@ -29,15 +29,6 @@ function joinPath(a, b)
     end
 end
 
-function dictToDataFrame(dict)
-    try
-        df = DataFrame(;[Symbol(k)=>v for (k,v) in dict]...)
-        return df
-    catch 
-        println("ERROR: Could not convert dictionary to Dataframe")
-    end
-end
-
 # Function takes in a matrix of roots, and their respective headers returning a dictionary (hashmap)
 # of the roots keyed on headers. 
 function polyRoots(qRootsSource, headers)
