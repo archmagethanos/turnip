@@ -1,9 +1,9 @@
+using Pkg; Pkg.add("DoubleFloats")
+
 using PolynomialRoots
 using DelimitedFiles
 using BenchmarkTools
-using CSV
-using DataFrames
-using Test
+using DoubleFloats
 
 # Our program takes an input of a .csv file of formatted vectorrs with the first row devoted to the header, 
 # a string representation of the rational vector composing the polynomial. The program exports the resulting
@@ -13,7 +13,7 @@ function loadData(filename)
     datadirpath = "data/"
     filepath = joinPath(datadirpath, filename)
     try
-        qRootsMatrix, headers = readdlm(filepath, ',', Float64; header=true) 
+        qRootsMatrix, headers = readdlm(filepath, ',', Double64; header=true) 
         return qRootsMatrix, headers
     catch
         println("ERROR: File not found or of invalid type.")
@@ -53,20 +53,6 @@ function polyRoots(qRootsSource, headers)
     return rootsdict
 end 
 
-# function exportDict(exportdict, exportFilePath)
-#     try
-#         df = DataFrame(;[Symbol(k)=>v for (k,v) in exportdict]...)
-#         CSV.write("data/" * exportFilePath * ".csv", df)
-#         println("Data exported successfully to /data/" * "q_roots_30.csv")
-#     catch
-#         #println("ERROR: Export of dictionary did not complete successfully.")
-#     end
-# end
-
-
-
 qRootsMatrix, headers = loadData("q_to_denom_30.csv")
 @btime roots = polyRoots(qRootsMatrix, headers)
 
-#df = DataFrame(Any[collect(keys(roots)), collect(values(roots))])
-#@btime exportDict(roots, "/data/q_roots_30")
