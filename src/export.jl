@@ -14,9 +14,9 @@ function write(rootsDict, formatter, f::IOStream)
 end
 
 function generateRoots()
-    qRootsMatrix, headers = loadData("q_to_denom_30.csv")
+    qRootsMatrix, headers = loadData("q_to_denom_200.csv")
     roots = polyRoots(qRootsMatrix, headers)
-    open("data/foo.csv","w") do f
+    open("data/q_roots_200.csv","w") do f
         write(roots, formatter, f)
     end
 end
