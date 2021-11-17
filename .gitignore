@@ -348,3 +348,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+data/q_to_denom_500.csv
+data/q_to_roots_500.csv
+data/q_to_roots_30.csv
+data/
