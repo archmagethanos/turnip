@@ -2,6 +2,7 @@ using PolynomialRoots
 using DelimitedFiles
 using DoubleFloats
 using ProgressBars
+using Base.Threads
 
 using BenchmarkTools
 
@@ -35,17 +36,18 @@ end
 function polyRoots(qRootsSource, headers)
     global rootsdict = Dict(headers[1]=>[], headers[2]=>[1+0im], headers[3]=>[1+0im], headers[4]=>[0+0im])
     n = 1
-    for col in ProgressBar(eachcol(qRootsSource))
+    for col in ProgressBar(eachcol(qRootsSource))  
         if get(rootsdict, headers[n], 0) == 0
            r = roots(col)
            rootsdict[headers[n]] = r
         end
         n = n+1
     end 
-    println("Roots Generation Complete.") 
+    #println("Roots Generation Complete.") 
     return rootsdict
 end 
 
 
-# qRootsMatrix, headers = loadData("q_to_denom_30.csv")
-# @btime roots = polyRoots(qRootsMatrix, headers) # Calculate roots
+qRootsMatrix, headers = loadData("q_to_denom_30.csv")
+@btime roots = polyRoots(qRootsMatrix, headers) # Calculate roots
+
