@@ -20,6 +20,7 @@ function generateRoots()
     open("data/q_to_roots_500.csv","w") do f
         write(roots, formatter, f)
     end
+    println("Export Successful")
 end
 
 generateRoots()
