@@ -58,6 +58,7 @@ function polyRoots(qRootsSource, headers)
     Threads.@threads for n in ProgressBar(1:length)  
         if get(rootsdict, headers[n], 0) == 0
            q = qRootsSource[:,n] 
+           q = removeZero(q)
            r = roots(q)
            rootsdict[headers[n]] = r
         end

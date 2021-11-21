@@ -7,7 +7,8 @@ end
 using BenchmarkTools
 
 
-addprocs(:auto)
+addprocs();
+nworkers()
 
 @everywhere const qRootsMatrix, headers = loadData("q_to_denom_30.csv")
 
