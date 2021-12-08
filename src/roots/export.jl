@@ -5,7 +5,10 @@ using FileIO
 include("polyroots.jl")
 
 # placeholder, this should actually do things
-function formatter(x)
+function formatter(x)   
+    # string(x)
+    # filter(x -> !isspace(x), x)
+    # chop(roots,head=0,tail=1)
     return x
 end
 
@@ -15,21 +18,22 @@ function write(rootsDict, formatter, f::IOStream)
     DelimitedFiles.writedlm(f, rootsFormatted)
 end
 
-function generateRoots(filename, format)
-    qRootsMatrix, headers = loadData("q_to_denom_500.csv")
+function generateRoots(importFilename, exportFilename, format)
+
+    qRootsMatrix, headers = loadData(importFilename)
     roots = polyRoots(qRootsMatrix, headers) # Calculate roots
 
     if format == "csv"
         println("Exporting Roots to CSV:")
-        open("data/" * filename *".csv","w") do f
+        open("data/" * exportFilename *".csv","w") do f
         write(roots, formatter, f)
         end
     end
 
     if format == "jld2"
-        save("data/" * filename * ".jld2", roots)
+        save("data/" * exportFilename * ".jld2", roots)
     end
     println("Export Successful")
 end
 
-generateRoots("q_to_roots_500", "jld2")
+generateRoots("q_to_denom_850.csv","q_to_roots_850", "csv")
