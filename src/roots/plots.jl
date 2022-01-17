@@ -17,4 +17,4 @@ xlabel("X")
 ylabel("Y")
 title("Example plot")
 
-savefig("example.svg")
+savefig("output/example.svg")

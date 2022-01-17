@@ -32,8 +32,8 @@ function lazyChunksLoader(fname::String)
     fpath = joinPath("data/", fname)
     if (checkValidFile(fpath))
         try
-            numBlock = getFileSizeGB(fname)
-            return CSV.Chunks(fpath,tasks=numBlock; transpose = true)
+            numBlock = getFileSizeGB(fname) + 1
+            return CSV.Chunks(fpath,tasks=numBlock; transpose = false, )
         catch e
             println("File failed to load.")
         end
@@ -43,9 +43,12 @@ end
 
 function chunkedRowExporter(chunks::CSV.Chunks)
     for chunk in chunks
+        n::Int = 1
         for row in chunk
             println(row)
         end
+        println("Chunk ", n)
+        n += 1
     end
 end
 
@@ -54,5 +57,9 @@ function loader(fname::String)
     chunkedRowExporter(chunks)
 end
 
-loader("foo.csv")
+
+println(checkValidFile("data/q_to_denom_200.csv"))
+
+println(getFileSizeGB("data/q_to_denom_200.csv"))
+loader("q_to_denom_200.csv")
 
