@@ -15,8 +15,9 @@ function write(rootsDict, formatter, f::IOStream)
     DelimitedFiles.writedlm(f, rootsFormatted)
 end
 
-function generateRoots(filename, format)
-    qRootsMatrix, headers = loadData("q_to_denom_500.csv")
+function generateRoots(infile::String, filename::String, format::String)
+    qRootsMatrix, headers = loadData(infile * ".csv")
+    println("found file")
     roots = polyRoots(qRootsMatrix, headers) # Calculate roots
 
     if format == "csv"
@@ -32,4 +33,4 @@ function generateRoots(filename, format)
     println("Export Successful")
 end
 
-generateRoots("q_to_roots_500", "jld2")
+

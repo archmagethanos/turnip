@@ -69,9 +69,6 @@ end
 
 
 
-#qRootsMatrix, headers = loadData("q_to_denom_500.csv")
+#qRootsMatrix, headers = loadData("q_to_denom_200.csv")
 
-
-
-#polyRoots(qRootsMatrix, headers) # Calculate roots
 

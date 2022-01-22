@@ -1,17 +1,22 @@
 using CSV
 using Distributed
 
-function checkValidFile(filename::String)
-    return isfile(filename)
+function checkValidFile(fname::String)
+    return isfile(fname)
 end
 
 function getNumAvailProcess()
     return Threads.nthreads()
 end
 
-function getFileSizeGB(filename::String)
-        size = stat(filename).size / 1073741824
+function getFileSizeGB(fname::String)
+        size = stat(fname).size / 1073741824
         return trunc(Integer, size)
+end
+
+# returns free memory in GiB
+function getFreeMemory()
+    return round(Sys.free_memory()/2^30, 0)
 end
 
 function joinPath(a, b)
@@ -26,40 +31,28 @@ end
 function formatter()
 end
 
-#6 Added in use of CSV.Chunks to enable files outside of max memory.
-# Returns a blocks object to iterate over
-function lazyChunksLoader(fname::String)
-    fpath = joinPath("data/", fname)
-    if (checkValidFile(fpath))
-        try
-            numBlock = getFileSizeGB(fname) + 1
-            return CSV.Chunks(fpath,tasks=numBlock; transpose = false, )
-        catch e
-            println("File failed to load.")
-        end
-    else return C_NULL
-    end
+function wholeLoad(fname::String)
+    return 1
 end
 
-function chunkedRowExporter(chunks::CSV.Chunks)
-    for chunk in chunks
-        n::Int = 1
-        for row in chunk
-            println(row)
-        end
-        println("Chunk ", n)
-        n += 1
-    end
+function rowLoad(fname::String)
+    return 1
 end
 
 function loader(fname::String)
-    chunks = lazyChunksLoader(fname)
-    chunkedRowExporter(chunks)
+    try
+        checkValidFile(fname) || error("LoadError: File does not exist.")
+        getFileSizeGB <= 0.75 * getFreeMemory && wholeLoad(fname)
+        rowLoad(fname)
+    catch e
+        println("File not supported.")
+    end
 end
 
 
-println(checkValidFile("data/q_to_denom_200.csv"))
+#println(checkValidFile("data/q_to_denom_750.csv"))
+#println(getFileSizeGB("data/q_to_denom_750.csv"))
+filename = "data/q_to_denom_750.csv"
 
-println(getFileSizeGB("data/q_to_denom_200.csv"))
-loader("q_to_denom_200.csv")
+loader("q_to_denom_750.csv")
 
