@@ -15,21 +15,24 @@ function write(rootsDict, formatter, f::IOStream)
     DelimitedFiles.writedlm(f, rootsFormatted)
 end
 
-function generateRoots(infile::String, filename::String, format::String)
-    qRootsMatrix, headers = loadData(infile * ".csv")
-    roots = polyRoots(qRootsMatrix, headers) # Calculate roots
-
-    if format == "csv"
-        println("Exporting Roots to CSV:")
-        open("data/" * filename *".csv","w") do f
-        write(roots, formatter, f)
+function exportDict(inDict::Dict, filename::String, format::String)
+    try
+        if format == "csv"
+            println("Exporting Roots to CSV:")
+            open("data/" * filename *".csv","w") do f
+            write(inDict, formatter, f)
+            end
         end
-    end
 
-    if format == "jld2"
-        save("data/" * filename * ".jld2", roots)
+        if format == "jld2"
+            save("data/" * filename * ".jld2", roots)
+        end
+        
+        return 1
+    catch e
+        println("ProcessError: Export unsuccessful")
+        return -1
     end
-    println("Export Successful")
 end
 
 

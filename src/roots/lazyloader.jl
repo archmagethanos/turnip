@@ -1,5 +1,6 @@
 using CSV
 using Distributed
+using DelimitedFiles
 
 function checkValidFile(fname::String)
     return isfile(fname)
@@ -10,13 +11,14 @@ function getNumAvailProcess()
 end
 
 function getFileSizeGB(fname::String)
-        size = stat(fname).size / 1073741824
-        return trunc(Integer, size)
+    size = stat(fname).size / 2^30
+    return trunc(Int, size)
 end
 
 # returns free memory in GiB
 function getFreeMemory()
-    return round(Sys.free_memory()/2^30, 0)
+    x = convert(Int64, Sys.free_memory())
+    return convert(Int, round(x/2^30))
 end
 
 function joinPath(a, b)
@@ -24,7 +26,7 @@ function joinPath(a, b)
         c = a * b
         return c
     catch
-        println("ERROR: Input must be valid String") 
+        println("TypeError: Input must be valid String") 
     end
 end
 
@@ -32,7 +34,22 @@ function formatter()
 end
 
 function wholeLoad(fname::String)
-    return 1
+
+    returnVec = Vector{Any}(undef,2)
+
+    qRootsMatrix, headers = readdlm(fname, ',', BigInt; header=true, use_mmap=true) 
+        returnVec[1] = qRootsMatrix; returnVec[2] = headers
+        return returnVec
+
+    try
+        qRootsMatrix, headers = readdlm(fname, ',', BigInt; header=true, use_mmap=true) 
+        returnVec[1] = qRootsMatrix; returnVec[2] = headers
+        return returnVec
+    catch
+        println("LoadError: File not found or of invalid type")
+    end
+
+    return returnVec
 end
 
 function rowLoad(fname::String)
@@ -40,19 +57,18 @@ function rowLoad(fname::String)
 end
 
 function loader(fname::String)
+    
     try
         checkValidFile(fname) || error("LoadError: File does not exist.")
-        getFileSizeGB <= 0.75 * getFreeMemory && wholeLoad(fname)
-        rowLoad(fname)
+
+        if (getFileSizeGB(fname) <= 0.75 * getFreeMemory()) 
+            loader = wholeLoad(fname)
+            return loader[1],loader[2]
+        end
+
+        rowLoader = rowLoad(fname)
+        return rowLoader
     catch e
-        println("File not supported.")
+        println("LoadError: File not supported")
     end
 end
-
-
-#println(checkValidFile("data/q_to_denom_750.csv"))
-#println(getFileSizeGB("data/q_to_denom_750.csv"))
-filename = "data/q_to_denom_750.csv"
-
-loader("q_to_denom_750.csv")
-
