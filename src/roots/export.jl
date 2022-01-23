@@ -17,7 +17,6 @@ end
 
 function generateRoots(infile::String, filename::String, format::String)
     qRootsMatrix, headers = loadData(infile * ".csv")
-    println("found file")
     roots = polyRoots(qRootsMatrix, headers) # Calculate roots
 
     if format == "csv"

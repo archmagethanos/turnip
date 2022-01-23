@@ -15,7 +15,7 @@ function loadData(filename)
     datadirpath = "data/"
     filepath = joinPath(datadirpath, filename)
     try
-        qRootsMatrix, headers = readdlm(filepath, ',', Float64; header=true) 
+        qRootsMatrix, headers = readdlm(filepath, ',', BigInt; header=true, use_mmap) 
         return qRootsMatrix, headers
     catch
         println("ERROR: File not found or of invalid type.")
@@ -69,6 +69,6 @@ end
 
 
 
-#qRootsMatrix, headers = loadData("q_to_denom_200.csv")
+qRootsMatrix, headers = loadData("q_to_denom_200.csv")
 
 
