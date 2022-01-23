@@ -56,7 +56,8 @@ function polyRoots(qRootsSource, headers)
     length = Int(size(qRootsSource,2))
     rootsdict = Dict(headers[1]=>[], headers[2]=>[1+0im], headers[3]=>[1+0im], headers[4]=>[0+0im])
 
-    p = Progress(length, 1)
+    p = Progress(length, .1, "Calculating roots...", 50)
+
     Threads.@threads for n in 1:length 
         if get(rootsdict, headers[n], 0) == 0
            q = qRootsSource[:,n] 
@@ -67,6 +68,7 @@ function polyRoots(qRootsSource, headers)
            next!(p)
         end
     end 
+    
     println("Roots Generation Complete.") 
     return rootsdict
 end 
