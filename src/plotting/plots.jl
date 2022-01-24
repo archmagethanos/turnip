@@ -18,3 +18,4 @@ ylabel("Y")
 title("Example plot")
 
 savefig("output/example.svg")
+
