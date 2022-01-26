@@ -3,6 +3,7 @@ using DelimitedFiles
 using DoubleFloats
 using ProgressBars
 using Base.Threads
+using ProgressMeter
 
 # using BenchmarkTools
 
@@ -14,6 +15,7 @@ using Base.Threads
 function loadData(filename)
     datadirpath = "data/"
     filepath = joinPath(datadirpath, filename)
+<<<<<<< HEAD
     if (isfile(filepath))
         try
             qRootsMatrix, headers = readdlm(filepath, ',', Float64; header=true, use_mmap=true) 
@@ -21,6 +23,13 @@ function loadData(filename)
         catch
             println("ERROR: File not found or of invalid type.")
         end
+=======
+    try
+        qRootsMatrix, headers = readdlm(filepath, ',', BigInt; header=true, use_mmap=true) 
+        return qRootsMatrix, headers
+    catch
+        println("ERROR: File not found or of invalid type.")
+>>>>>>> 87f3f9a211ec88f580d4e1f265b7e197fca7e777
     end
 end
 
@@ -56,25 +65,42 @@ end
 function polyRoots(qRootsSource, headers)
     length = Int(size(qRootsSource,2))
     rootsdict = Dict(headers[1]=>[], headers[2]=>[1+0im], headers[3]=>[1+0im], headers[4]=>[0+0im])
+<<<<<<< HEAD
     p = Progress(length)
     # Threads.@threads for n in ProgressBar(1:length)
     Threads.@threads for n in 1:length
+=======
+
+    p = Progress(length, .1, "Calculating roots...", 50)
+
+    Threads.@threads for n in 1:length 
+>>>>>>> 87f3f9a211ec88f580d4e1f265b7e197fca7e777
         if get(rootsdict, headers[n], 0) == 0
            q = qRootsSource[:,n] 
            q = removeZero(q)
            r = roots(q)
            rootsdict[headers[n]] = r
+<<<<<<< HEAD
+=======
+
+>>>>>>> 87f3f9a211ec88f580d4e1f265b7e197fca7e777
            next!(p)
         end
     end 
+    
     println("Roots Generation Complete.") 
     return rootsdict
 end 
 
 
 
+<<<<<<< HEAD
 
 # qRootsMatrix, headers = loadData("q_to_denom_30.csv")
 
 # polyRoots(qRootsMatrix, headers) # Calculate roots
+=======
+qRootsMatrix, headers = loadData("q_to_denom_200.csv")
+
+>>>>>>> 87f3f9a211ec88f580d4e1f265b7e197fca7e777
 
