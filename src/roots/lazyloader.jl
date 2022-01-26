@@ -37,10 +37,6 @@ function wholeLoad(fname::String)
 
     returnVec = Vector{Any}(undef,2)
 
-    qRootsMatrix, headers = readdlm(fname, ',', BigInt; header=true, use_mmap=true) 
-        returnVec[1] = qRootsMatrix; returnVec[2] = headers
-        return returnVec
-
     try
         qRootsMatrix, headers = readdlm(fname, ',', BigInt; header=true, use_mmap=true) 
         returnVec[1] = qRootsMatrix; returnVec[2] = headers
