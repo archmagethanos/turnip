@@ -30,6 +30,7 @@ function main()
 
     qPolyRootsScript(30; exportType = "csv", plotType = "png")
     #qPolyRootsScript(200; exportType = "csv", plotType = "png")
+
     #qPolyRootsScript(500; exportType = "csv", plotType = "png")
     #qPolyRootsScript(400; exportType = "csv", plotType = "png")
 

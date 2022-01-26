@@ -215,5 +215,5 @@ class PolynomialGenerator():
         df = pd.DataFrame(self.q_dict)
         df.to_csv(self.out_file)
 if __name__ == "__main__":
-    max_denom = 750
+    max_denom = 400
     pg = PolynomialGenerator(max_integer=1, max_denominator=max_denom, out_file=f'data/q_to_denom_{max_denom}.csv')

@@ -1,6 +1,7 @@
 using Polynomials
 using ContinuedFractions
 
+
 function corner()
     #def corner(c): # Left and right corners of Triangle(c)
     p, q, left, right, s = c[0], c[1], x, x, 1
@@ -19,3 +20,4 @@ end
 
 function Q()
 end
+
