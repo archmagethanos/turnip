@@ -1,4 +1,6 @@
 using GRUtils
+using Plots
+
 
 
 function makeData(rootsDict::Dict)
@@ -17,24 +19,34 @@ end
 
 function createScatter(realRoots::Vector, imagRoots::Vector, max_denom::String)
     size = 30*ones(length(realRoots))
-    color = 1*ones(length(realRoots))
-    scatter(realRoots, imagRoots, size, color)
+    GRUtils.scatter(realRoots, imagRoots, size)
     
     # Formatting
     xlabel("ℜ")
     ylabel("ℑ")
+    GRUtils.grid(false)
+    ylim(-3,3)
+    xlim(-3,4)
     title("Plot of Q Polynomial Roots")
 
-    savefig("plots/q_plot_for_max_" * max_denom * ".png")
+    GRUtils.savefig("plots/q_plot_for_max_" * max_denom * ".png")
 end
 
+function testPlots(realRoots::Vector, imagRoots::Vector)
+    gaston()
+    Plots.plot(realRoots, imagRoots, seriestype = :scatter)
+    png("plots/test")
+end
+
+
 function plotQ(rootsDict::Dict{SubString{String}, Vector}, max_denom::String)
-    try
+    #try
         r,im = makeData(rootsDict)
-        createScatter(r,im, max_denom)
-    catch e
-        println("ProcessError: Plotting failed.")
-    end
+        #createScatter(r,im, max_denom)
+        testPlots(r,im)
+    #catch e
+        #println("ProcessError: Plotting failed.")
+    #end
     
 end
 

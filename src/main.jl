@@ -6,7 +6,6 @@ include("plotting/plots.jl")
 # LEGACY: implement python call to generate roots
 # generateQ = pyimport("src/polynomials/generate_q.py")
 
-println(wd)
 function qPolyRootsScript(max_denom::Int; exportType::String="none", plotType::String="none")
 
     max_denom = string(max_denom)
@@ -30,8 +29,8 @@ end
 function main()
 
     qPolyRootsScript(30; exportType = "csv", plotType = "png")
-    qPolyRootsScript(100; exportType = "csv", plotType = "png")
-    qPolyRootsScript(500; exportType = "csv", plotType = "png")
+    #qPolyRootsScript(200; exportType = "csv", plotType = "png")
+    #qPolyRootsScript(500; exportType = "csv", plotType = "png")
     #qPolyRootsScript(400; exportType = "csv", plotType = "png")
 
 end

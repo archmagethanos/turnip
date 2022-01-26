@@ -40,7 +40,7 @@ function removeZero(vec)
         end
     end
 
-    trimvec = Vector{Float64}(undef,n-ind)
+    trimvec = Vector{BigInt}(undef,n-ind)
 
     for i in 1:(n-ind)
         trimvec[i] = vec[i+ind]
@@ -53,21 +53,23 @@ end
 function polyRoots(qRootsSource, headers)
     length = Int(size(qRootsSource,2))
     rootsdict = Dict(headers[1]=>[], headers[2]=>[1+0im], headers[3]=>[1+0im], headers[4]=>[0+0im])
-
+    
     p = Progress(length, 1, "Calculating roots...", 50)
 
     Threads.@threads for n in 1:length 
         if get(rootsdict, headers[n], 0) == 0
-           q = qRootsSource[:,n] 
-           q = removeZero(q)
+           q = qRootsSource[:,n]
+           q = removeZero(q)          
+
            r = roots(q)
+           
            rootsdict[headers[n]] = r
 
            next!(p)
         end
     end 
     
-    println("Roots Generation Complete.") 
+    println("\nRoots Generation Complete.") 
     return rootsdict
 end 
 
