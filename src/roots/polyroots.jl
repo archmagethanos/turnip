@@ -1,13 +1,11 @@
 using PolynomialRoots
 using DelimitedFiles
-using DoubleFloats
-using ProgressBars
 using Base.Threads
 using ProgressMeter
 
 # using BenchmarkTools
 
-# Our program takes an input of a .csv file of formatted vectorrs with the first row devoted to the header, 
+# Our program takes an input of a .csv file of formatted vectors with the first row devoted to the header, 
 # a string representation of the rational vector composing the polynomial. The program exports the resulting
 # roots to a csv in the same directory. 
 
@@ -21,7 +19,7 @@ function loadData(filename)
     catch
         println("ERROR: File not found or of invalid type.")
     end
-end
+end 
 
 function joinPath(a, b)
     try
@@ -56,7 +54,7 @@ function polyRoots(qRootsSource, headers)
     length = Int(size(qRootsSource,2))
     rootsdict = Dict(headers[1]=>[], headers[2]=>[1+0im], headers[3]=>[1+0im], headers[4]=>[0+0im])
 
-    p = Progress(length, .1, "Calculating roots...", 50)
+    p = Progress(length, 1, "Calculating roots...", 50)
 
     Threads.@threads for n in 1:length 
         if get(rootsdict, headers[n], 0) == 0
@@ -73,8 +71,5 @@ function polyRoots(qRootsSource, headers)
     return rootsdict
 end 
 
-
-
-qRootsMatrix, headers = loadData("q_to_denom_200.csv")
 
 

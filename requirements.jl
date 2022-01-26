@@ -6,4 +6,4 @@ Pkg.add("DoubleFloats")
 Pkg.add("PolynomialRoots")
 Pkg.add("Distributed")
 Pkg.add("ProgressMeter")
-Pkg.add("ProgressBars")
+

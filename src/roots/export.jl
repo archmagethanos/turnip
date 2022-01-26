@@ -5,7 +5,10 @@ using FileIO
 include("polyroots.jl")
 
 # placeholder, this should actually do things
-function formatter(x)
+function formatter(x)   
+    # string(x)
+    # filter(x -> !isspace(x), x)
+    # chop(roots,head=0,tail=1)
     return x
 end
 
@@ -34,5 +37,4 @@ function exportDict(inDict::Dict, filename::String, format::String)
         return -1
     end
 end
-
 
