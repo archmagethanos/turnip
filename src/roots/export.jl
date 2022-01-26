@@ -1,5 +1,5 @@
 using DelimitedFiles
-using JLD2
+#using JLD2
 using FileIO
 
 include("polyroots.jl")
@@ -27,9 +27,9 @@ function exportDict(inDict::Dict, filename::String, format::String)
             end
         end
 
-        if format == "jld2"
+        #= if format == "jld2"
             save("data/" * filename * ".jld2", roots)
-        end
+        end =#
         
         return 1
     catch e
