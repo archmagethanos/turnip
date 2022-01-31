@@ -47,7 +47,7 @@ end
 function parPolyRoots()
     #n = size(qRootsSource, 2)
     qRootsMatrix, headers = loadData("q_to_denom_30.csv")
-    pmap(polyRootS, 6:n; on_error=identity)
+    #pmap(polyRootS, 6:n; on_error=identity)
 end
 
 
