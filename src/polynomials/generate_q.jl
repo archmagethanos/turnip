@@ -3,6 +3,10 @@ using Plots
 using PolynomialRoots
 using ProgressMeter
 
+plotlyjs()
+
+Plots.PlotlyJSBackend()
+
 #= struct ContinuedFraction{T}
 	quotients::Vector{T}
 	ContinuedFraction{T}(qs::Vector{T}) where {T<:Integer} = new{T}(qs)
@@ -29,7 +33,7 @@ function ContinuedFraction(rat::Rational{T}) where {T<:Integer}
     pushfirst!(quotients(cf), a) # insert at index 1
     cf
 end =#
-# Begin Eric
+# Testing Contued fractions rep
 
 begin
 	quot(v)=v[1]//v[2]
@@ -70,7 +74,7 @@ function center_corner_index(v)
 	[center, corner, ind]
 end
 
-
+# testing updating q 
 function dQ(v)
 		return Polynomial(push!(zeros(BigInt,v[2]), (-1)^v[1]))
 end
@@ -133,5 +137,18 @@ rootset = generateRootset()
 
 c1=filter(z->abs2(z)<3, rootset);
 
-scatter([c1[j] for j in 1:length(c1)], mode="markers", markersize = 1,markerstrokewidth=0, c = :blue, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
-savefig("plots/ericScatter.png")
+scatter([c1[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :blue, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
+
+savefig("Scatter_100.png")
+savefig("plots/plots.svg")
+
+for den in keys(rootsdict)
+    for num in keys(rootsdict[den])
+        for z in rootsdict[den][num][2]
+            if abs2(z)<1/16
+                println(rootsdict[den][num][1])
+                println(z)
+            end
+        end
+    end
+end
