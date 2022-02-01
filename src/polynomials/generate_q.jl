@@ -134,4 +134,6 @@ rootset = generateRootset()
 c1=filter(z->abs2(z)<3, rootset);
 
 scatter([c1[j] for j in 1:length(c1)], mode="markers", markersize = 1,markerstrokewidth=0, c = :blue, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
+
 savefig("plots/ericScatter.png")
+savefig("plots/plots.svg")
