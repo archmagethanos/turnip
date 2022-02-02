@@ -2,38 +2,9 @@ using Polynomials
 using Plots
 using PolynomialRoots
 using ProgressMeter
+using BenchmarkTools
 
 plotlyjs()
-
-Plots.PlotlyJSBackend()
-
-#= struct ContinuedFraction{T}
-	quotients::Vector{T}
-	ContinuedFraction{T}(qs::Vector{T}) where {T<:Integer} = new{T}(qs)
-end
-
-quotients(cf::ContinuedFraction) = cf.quotients
-eltype(it::ContinuedFraction{T}) where {T} = T
-
-function Base.Rational(cf::ContinuedFraction)
-    qs = quotients(cf)
-    isempty(qs) && return 0 // 1
-    length(qs) == 1 && return qs[1] // 1
-
-    remainder = qs[2:end]
-    rat = Rational(ContinuedFraction(remainder))
-    (qs[1] * rat.num + rat.den) // rat.num
-end
-
-function ContinuedFraction(rat::Rational{T}) where {T<:Integer}
-    a = div(rat.num, rat.den)
-    a * rat.den == rat.num && return ContinuedFraction(T[a])  # Exact!
-
-    cf = ContinuedFraction(rat.den//(rat.num - a*rat.den))
-    pushfirst!(quotients(cf), a) # insert at index 1
-    cf
-end =#
-# Testing Contued fractions rep
 
 begin
 	quot(v)=v[1]//v[2]
@@ -88,10 +59,6 @@ function Q(v)
 		return ([0 1; -dQ(c) Q(c)]^(i-1) * [Q(k); Q(k+c)])[2]
 end
 
-
-q = Q([1,100])
-println(typeof(q))
-
 function bigroots(poly)
     PolynomialRoots.roots(convert(Vector{BigInt},coeffs(poly)))
 end
@@ -108,12 +75,36 @@ function fractionline(n)  #fractions in (0,1/2) with denominator n.
     	return filter(rat-> rat[2]==n ,L)
 end
 
-rootsdict = Dict([(D, Dict([(rat[1], [rat, -1]) for rat in fractionline(D)])) for D in 3:100]);
 
-@showprogress for den in keys(rootsdict)
-    for num in keys(rootsdict[den])
-        rootsdict[den][num][2]=bigroots(Q([num,den]))
-    end
+function generateQDict(max_denom::Int)
+	qDict = Dict([(D, Dict([(rat[1], [rat, -1]) for rat in fractionline(D)])) for D in 3:max_denom]);
+	println("Polynomials Generated!\n")
+	return qDict
+end
+
+function generateRoots(qDict::Dict)
+	for den in keys(qDict)
+    	for num in keys(keys[den])
+        	qDict[den][num][2]=bigroots(Q([num,den]))
+			#next!(p)
+    	end
+	end
+	return qDict
+end
+
+function generateRootsMultiThreaded(qDict::Dict)
+	denKey = collect(keys(qDict))
+	n = length(denKey) + 2
+
+	p = Progress(n, 1, "Calculating Roots...", 50)
+
+	Threads.@threads for den in 3:n
+		for num in keys(qDict[den])
+			qDict[den][num][2]=bigroots(Q([num,den]))
+			next!(p)
+    	end
+	end
+	return qDict
 end
 
 function id(z)
@@ -124,31 +115,34 @@ function F64(z)
 	return convert(Complex{Float64},z)
 end
 
-function generateRootset()
+function generateRootset(max_denom::Int)
+	qDict = generateQDict(max_denom)
+	rootsdict = generateRootsMultiThreaded(qDict)
 	rootset = []
-	@showprogress for den in keys(rootsdict)
+
+	denKey = collect(keys(rootsdict))
+	n = length(denKey) +2
+
+	p = Progress(n, 1, "Mapping unions...", 50)
+
+	Threads.@threads for den in 3:n
     	for num in keys(rootsdict[den])
         	rootset=union(rootset, map(id,rootsdict[den][num][2]))
+			next!(p)
     	end
 	end
 	return rootset
 end
-rootset = generateRootset()
 
-c1=filter(z->abs2(z)<3, rootset);
+function runQPlot(max_denom)
+	rootset = generateRootset(max_denom)
+	println("\nRootset generated!")
 
-scatter([c1[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :blue, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
+	c1=filter(z->abs2(z)<3, rootset);
 
-savefig("Scatter_100.png")
-savefig("plots/plots.svg")
-
-for den in keys(rootsdict)
-    for num in keys(rootsdict[den])
-        for z in rootsdict[den][num][2]
-            if abs2(z)<1/16
-                println(rootsdict[den][num][1])
-                println(z)
-            end
-        end
-    end
+	scatter([c1[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :black, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
+	savefig("plots/scatter_" * string(max_denom) * ".svg")
+	println("Plot exported successfully!")
 end
+
+runQPlot(100)
