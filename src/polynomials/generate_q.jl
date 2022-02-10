@@ -3,9 +3,12 @@ using Plots
 using PolynomialRoots
 using ProgressMeter
 using BenchmarkTools
+using FileIO
 
-plotlyjs()
+using JLD2
 
+gr()
+#plotlyjs()
 begin
 	quot(v)=v[1]//v[2]
 	vect(r)=[numerator(r),denominator(r)]
@@ -82,30 +85,24 @@ function generateQDict(max_denom::Int)
 	return qDict
 end
 
-function generateRoots(qDict::Dict)
-	for den in keys(qDict)
-    	for num in keys(keys[den])
-        	qDict[den][num][2]=bigroots(Q([num,den]))
-			#next!(p)
-    	end
-	end
-	return qDict
-end
-
 function generateRootsMultiThreaded(qDict::Dict)
+
+	setprecision(BigFloat, 512) do
 	denKey = collect(keys(qDict))
 	n = length(denKey) + 2
 
-	p = Progress(n, 1, "Calculating Roots...", 50)
+	p = Progress(n, 1, "Computing Roots...", 50)
 
 	Threads.@threads for den in 3:n
 		for num in keys(qDict[den])
 			qDict[den][num][2]=bigroots(Q([num,den]))
-			next!(p)
     	end
+		next!(p)
 	end
+end
 	return qDict
 end
+
 
 function id(z)
 	return z
@@ -128,21 +125,37 @@ function generateRootset(max_denom::Int)
 	Threads.@threads for den in 3:n
     	for num in keys(rootsdict[den])
         	rootset=union(rootset, map(id,rootsdict[den][num][2]))
-			next!(p)
     	end
+		next!(p)
 	end
 	return rootset
 end
 
 function runQPlot(max_denom)
-	rootset = generateRootset(max_denom)
+	
 	println("\nRootset generated!")
 
 	c1=filter(z->abs2(z)<3, rootset);
 
-	scatter([c1[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :black, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
+	scatter([c1[j] for j in 1:length(c1)], markersize = 0.9,markerstrokewidth=0, c = :black, size = (2000,2000), label=false, aspect_ratio=1, framestyle= :none, background_color= :ivory)
+	
 	savefig("plots/scatter_" * string(max_denom) * ".svg")
-	println("Plot exported successfully!")
 end
 
-runQPlot(100)
+function loadqPlot()
+	
+	load("q_polynomials_200.jld2")
+
+	c1=filter(z->abs2(z)<3, rootset);
+
+	scatter([c1[j] for j in 1:length(c1)], markersize = 0.9,markerstrokewidth=0, c = :black, size = (2000,2000), label=false, aspect_ratio=1, framestyle= :none, background_color= :ivory)
+	
+	savefig("plots/scatter_200.svg")
+end
+
+rootset = generateRootset(200)
+
+save("q_polynomials_200.jld2", rootset)
+
+loadqPlot()
+
