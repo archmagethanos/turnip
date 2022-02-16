@@ -4,8 +4,8 @@ using PolynomialRoots
 using ProgressMeter
 using BenchmarkTools
 
-plotlyjs()
-
+#plotlyjs()
+gr()
 begin
 	quot(v)=v[1]//v[2]
 	vect(r)=[numerator(r),denominator(r)]
@@ -140,9 +140,14 @@ function runQPlot(max_denom)
 
 	c1=filter(z->abs2(z)<3, rootset);
 
-	scatter([c1[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :black, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
+	scatter([c1[j] for j in 1:length(c1)], markersize = 1, markerstrokewidth=0, c = :black, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
 	savefig("plots/scatter_" * string(max_denom) * ".svg")
 	println("Plot exported successfully!")
 end
 
-runQPlot(100)
+using CSV, Tables
+
+roots = generateRootset(200)
+
+CSV.write("data/roots30.csv",  Tables.table(roots), writeheader=false)
+
