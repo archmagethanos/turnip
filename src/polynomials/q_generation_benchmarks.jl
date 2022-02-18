@@ -25,11 +25,13 @@ function pkgPolynomialRoots(qDict)
 end
 
 function pkgFastPolynomialRoots(qDict)
+    d = Dict(Vector{Int64}, Vector{ComplexF64})
     for q in keys(qDict)
         a = convert(Polynomial{Float64},qDict[q])
         a = FastPolynomialRoots.roots(a);
-        println(typeof(a))
+        d[q] = a
     end
+    return d
 end
 
 
