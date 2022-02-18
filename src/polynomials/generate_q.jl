@@ -155,8 +155,7 @@ function runQPlot(max_denom)
 
 	c1=filter(z->abs2(z)<3, rootset);
 
-	scatter([c1[j] for j in 1:length(c1)], markersize = 0.9,markerstrokewidth=0, c = :black, size = (2000,2000), label=false, aspect_ratio=1, framestyle= :none, background_color= :ivory)
-	
+	scatter([c1[j] for j in 1:length(c1)], markersize = 1, markerstrokewidth=0, c = :black, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none)
 	savefig("plots/scatter_" * string(max_denom) * ".svg")
 end
 
