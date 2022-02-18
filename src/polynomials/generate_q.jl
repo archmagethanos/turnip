@@ -78,12 +78,17 @@ function fractionline(n)  #fractions in (0,1/2) with denominator n.
     	return filter(rat-> rat[2]==n ,L)
 end
 
+function generateDiscriminants(rational, polynomial)
+	q2 = polynomial^2
+	dq = dQ(rational)
+	return q2 - 4 * dq
+end
 
-function generateQDict(max_denom::Int)
+#= function generateQDict(max_denom::Int)
 	qDict = Dict([(D, Dict([(rat[1], [rat, -1]) for rat in fractionline(D)])) for D in 3:max_denom]);
 	println("Polynomials Generated!\n")
 	return qDict
-end
+end =#
 
 function generateRootsMultiThreaded(qDict::Dict)
 
@@ -103,8 +108,8 @@ end
 	return qDict
 end
 
-function generateQDictAlt(max_denom)
-	qDict = Dict{Vector{Int64}, Polynomial{BigInt}}
+function generateQDict(max_denom)
+	qDict = Dict{Vector{Int64}, Polynomial{BigInt}}([2,5] => Q([2,5]))
 
 	for i in 3:max_denom
 		edge = fractionline(i)
@@ -115,11 +120,12 @@ function generateQDictAlt(max_denom)
 	return qDict
 end
 
-function generateDiscAlt(qDict)
-	discDict = Dict{Vector{Int64}, Polynomial{BigInt}}
+function generateDiscDict(qDict)
+	discDict = Dict{Vector{Int64}, Polynomial{BigInt}}([2,5] => generateDiscriminants([2,5], Q([2,5])))
 	for q in collect(keys(qDict))
-		discDict[q] = g
+		discDict[q] = generateDiscriminants(q, qDict[q])
 	end 
+	return discDict
 end
 
 function id(z)
