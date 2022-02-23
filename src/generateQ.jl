@@ -112,7 +112,7 @@ function generateDiscriminantsDict(qDict)
 end
 
 function generateRoots(dict)
-	setprecision(BigFloat, 1024) do
+	setprecision(BigFloat, 512) do
 		n = length(dict)
 	
 		p = Progress(n, 1, "Generating roots...", 50)
@@ -149,8 +149,8 @@ function runQPlot(rootset, discset, max_denom)
 	c1=filter(z->abs2(z)<3, rootset);
 	c2=filter(z->abs2(z)<3, discset);
 
-	scatter([c1[j] for j in 1:length(c1)], markersize = 0.9,markerstrokewidth=0, c = :black, size = (2000,2000), label=false, aspect_ratio=1, framestyle= :none, background_color= :ivory)
-	scatter!([c2[j] for j in 1:length(c1)], markersize = 0.9,markerstrokewidth=0, c = :red)
+	scatter([c1[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :black, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none, background_color= :ivory)
+	scatter!([c2[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :red)
 	
 	savefig("plots/scatter_" * string(max_denom) * ".svg")
 end
@@ -162,10 +162,13 @@ function main(max_denom)
 	r = generateRoots(q)
 	rs = generateRoots(d)
 
+	save(r, "data/roots_" * string(max_denom) * ".jld2")
+	save(rs, "data/disc_roots_" * string(max_denom) * ".jld2")
+
 	r = generateRootset(r)
 	rs = generateRootset(rs)
 
-	runQplot(r,rs,max_denom)
+	runQPlot(r,rs,max_denom)
 end
 
 main(200)
