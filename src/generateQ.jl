@@ -65,7 +65,6 @@ function bigroots(poly)
     PolynomialRoots.roots(convert(Vector{BigInt},coeffs(poly)))
 end
 
-
 function cleanpair(p)
     	r=p[1]//p[2]
     	return [numerator(r), denominator(r)]
@@ -77,73 +76,6 @@ function fractionline(n)  #fractions in (0,1/2) with denominator n.
     	return filter(rat-> rat[2]==n ,L)
 end
 
-
-function generateQDict(max_denom::Int)
-	qDict = Dict([(D, Dict([(rat[1], [rat, -1]) for rat in fractionline(D)])) for D in 3:max_denom]);
-	println("Polynomials Generated!\n")
-	return qDict
-end
-
-function generateDiscriminants(rational)
-    q2 = Q(rational)^2
-    dq  = dQ(rational)
-    return (q2 - 4 * dq)
-end
-
-function generateDiscriminantsDict(qDict)
-	denKey = collect(keys(qDict))
-	n = length(denKey) +2
-	
-	discDict = Dict{Vector{Int64}, Polynomial{BigInt}}()
-	sizehint!(discDict, length(qDict))
-
-	p = Progress(n, 1, "Computing Discrimants...", 50)
-
-	for den in 3:n
-		for num in keys(qDict[den])
-			key = [num, den]
-			discDict[key] = generateDiscriminants(key)
-		end
-		next!(p)
-	end
-	return discDict
-end
-
-function generateDiscriminantsRoots(discDict)
-	setprecision(BigFloat, 1024) do
-	n = length(discDict)
-
-	p = Progress(n, 1, "Generating Discriminant roots...", 50)
-
-	@Threads.threads for key in collect(keys(discDict))
-		poly = discDict[key]
-		discDict[key] = bigroots(poly)
-		next!(p)
-	end
-	return discDict
-	end
-end
-
-function generateRootsMultiThreaded(qDict::Dict)
-
-	setprecision(BigFloat, 1024) do
-	denKey = collect(keys(qDict))
-	n = length(denKey) + 2
-
-	p = Progress(n, 1, "Computing Roots...", 50)
-
-	Threads.@threads for den in 3:n
-		for num in keys(qDict[den])
-			qDict[den][num][2]=bigroots(Q([num,den]))
-    	end
-		next!(p)
-	end
-	
-	end
-	return qDict
-end
-
-
 function id(z)
 	return z
 end
@@ -152,9 +84,52 @@ function F64(z)
 	return convert(Complex{Float64},z)
 end
 
-function generateRootset(max_denom::Int)
-	qDict = generateQDict(max_denom)
-	rootsdict = generateRootsMultiThreaded(qDict)
+function generateDiscriminants(rational)
+    q2 = Q(rational)^2
+    dq  = dQ(rational)
+    return (q2 - 4 * dq)
+end
+
+function generateQDict(max_denom)
+	qDict = Dict{Vector{Int64}, Polynomial{BigInt}}([1,3] => Q([1,3]))
+
+	for key in 4:max_denom
+		rats = fractionline(key)
+		for rat in rats
+			qDict[rat] = Q(rat)
+		end
+	end
+	return qDict
+end
+
+function generateDiscriminantsDict(qDict)
+	discDict = Dict{Vector{Int64}, Polynomial{BigInt}}([1,3] => generateDiscriminants([1,3]))
+	
+	Threads.@threads for key in collect(keys(qDict))
+		discDict[key] = generateDiscriminants(key)
+	end
+	return discDict
+end
+
+function generateRoots(dict)
+	setprecision(BigFloat, 1024) do
+		n = length(dict)
+	
+		p = Progress(n, 1, "Generating roots...", 50)
+
+		keysdict = collect(keys(dict))
+		rootsDict = Dict(keysdict[1] => PolynomialRoots.roots(keysdict[1]))
+
+		@Threads.threads for key in keysdict
+			poly = coeffs(dict[key])
+			rootsDict[key] = PolynomialRoots.roots(poly)
+			next!(p)
+		end
+	return rootsDict	
+	end
+end
+
+function generateRootset(rootsdict)
 	rootset = []
 
 	denKey = collect(keys(rootsdict))
@@ -162,36 +137,39 @@ function generateRootset(max_denom::Int)
 
 	p = Progress(n, 1, "Mapping unions...", 50)
 
-	Threads.@threads for den in 3:n
-    	for num in keys(rootsdict[den])
-        	rootset=union(rootset, map(id,rootsdict[den][num][2]))
-    	end
+	Threads.@threads for key in denKey
+        	rootset=union(rootset, map(id,rootsdict[key]))
 		next!(p)
 	end
 	return rootset
 end
 
-function runQPlot(max_denom)
-	
-	println("\nRootset generated!")
+function runQPlot(rootset, discset, max_denom)
 
 	c1=filter(z->abs2(z)<3, rootset);
+	c2=filter(z->abs2(z)<3, discset);
 
 	scatter([c1[j] for j in 1:length(c1)], markersize = 0.9,markerstrokewidth=0, c = :black, size = (2000,2000), label=false, aspect_ratio=1, framestyle= :none, background_color= :ivory)
+	scatter!([c2[j] for j in 1:length(c1)], markersize = 0.9,markerstrokewidth=0, c = :red)
 	
 	savefig("plots/scatter_" * string(max_denom) * ".svg")
 end
 
-function loadqPlot(max_denom)
-	
-	rootset = load_object("data/q_polynomials_" * string(max_denom) * ".jld2")
+function main(max_denom)
+	q = generateQDict(max_denom)
+	d = generateDiscriminantsDict(q)
 
-	c1=filter(z->abs2(z)<3, rootset);
+	r = generateRoots(q)
+	rs = generateRoots(d)
 
-	scatter([c1[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :black, size = (20000,20000), label=false, aspect_ratio=1, framestyle= :none, background_color= :lightblue)
-	
-	savefig("plots/scatter_" * string(max_denom) * ".svg")
+	r = generateRootset(r)
+	rs = generateRootset(rs)
+
+	runQplot(r,rs,max_denom)
 end
+
+main(200)
+
 
 
 
