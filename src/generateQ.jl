@@ -203,13 +203,6 @@ function export2CSV(max_denom)
 	CSV.write("data/disc_" * string(max_denom) * ".csv",c2)
 end
 
-
-export2CSV(420)
-rs = generateRootset(rs)
-
-runQPlot(r,rs,max_denom)
-end
-
 function export2CSV(max_denom)
 r = load("data/roots_" * string(max_denom) * ".jld2")
 rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
