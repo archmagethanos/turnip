@@ -173,14 +173,19 @@ function main(max_denom)
 		save("data/roots_" * string(max_denom) * ".jld2", r)
 	end
 
-	if isfile("data/disc_roots_" * string(max_denom) * ".jld2")
-		rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
+	if max_denom > 420
+		rs = load("data/disc_roots_420.jld2")
 	else
-		q = generateQDict(max_denom)
-		d = generateDiscriminantsDict(q)
-		rs = generateRoots(d)
-		rs = keys2string(rs)
-		save("data/disc_roots_" * string(max_denom) * ".jld2", rs)
+		if isfile("data/disc_roots_" * string(max_denom) * ".jld2")
+			rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
+		else
+
+			q = generateQDict(max_denom)
+			d = generateDiscriminantsDict(q)
+			rs = generateRoots(d)
+			rs = keys2string(rs)
+			save("data/disc_roots_" * string(max_denom) * ".jld2", rs)
+		end
 	end
 
 	r = generateRootset(r)
@@ -204,17 +209,17 @@ function export2CSV(max_denom)
 end
 
 function export2CSV(max_denom)
-r = load("data/roots_" * string(max_denom) * ".jld2")
-rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
+	r = load("data/roots_" * string(max_denom) * ".jld2")
+	rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
 
-r = generateRootset(r)
-rs = generateRootset(rs)
+	r = generateRootset(r)
+	rs = generateRootset(rs)
 
-c1 = filter(z->abs2(z)<3, r);
-c2 = filter(z->abs2(z)<3, rs);
+	c1 = filter(z->abs2(z)<3, r);
+	c2 = filter(z->abs2(z)<3, rs);
 
-CSV.write("data/roots_" * string(max_denom) * ".csv",c1)
-CSV.write("data/disc_" * string(max_denom) * ".csv",c2)
+	CSV.write("data/roots_" * string(max_denom) * ".csv",c1)
+	CSV.write("data/disc_" * string(max_denom) * ".csv",c2)
 end
 
 
