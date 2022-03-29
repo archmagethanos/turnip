@@ -3,8 +3,8 @@ using Plots
 using PolynomialRoots
 using ProgressMeter
 using BenchmarkTools
-using FileIO
 using JLD2
+using CSV
 
 gr()
 #plotlyjs()
@@ -105,20 +105,20 @@ end
 function generateDiscriminantsDict(qDict)
 	discDict = Dict{Vector{Int64}, Polynomial{BigInt}}([1,3] => generateDiscriminants([1,3]))
 	
-	Threads.@threads for key in collect(keys(qDict))
+	for key in collect(keys(qDict))
 		discDict[key] = generateDiscriminants(key)
 	end
 	return discDict
 end
 
 function generateRoots(dict)
-	setprecision(BigFloat, 512) do
+	setprecision(BigFloat, 1024) do
 		n = length(dict)
 	
 		p = Progress(n, 1, "Generating roots...", 50)
 
 		keysdict = collect(keys(dict))
-		rootsDict = Dict(keysdict[1] => PolynomialRoots.roots(keysdict[1]))
+		rootsDict = Dict{Vector{Int64}, Vector{Complex{BigFloat}}}(keysdict[1] => PolynomialRoots.roots(keysdict[1]))
 
 		@Threads.threads for key in keysdict
 			poly = coeffs(dict[key])
@@ -127,6 +127,14 @@ function generateRoots(dict)
 		end
 	return rootsDict	
 	end
+end
+
+function keys2string(dict)
+	ret_dict = Dict("[1,3]" => PolynomialRoots.roots(coeffs(Q([2,5]))))
+	for key in keys(dict)
+		ret_dict[string(key)] = dict[key] 
+	end
+	return ret_dict
 end
 
 function generateRootset(rootsdict)
@@ -149,21 +157,31 @@ function runQPlot(rootset, discset, max_denom)
 	c1=filter(z->abs2(z)<3, rootset);
 	c2=filter(z->abs2(z)<3, discset);
 
-	scatter([c1[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :black, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none, background_color= :ivory)
-	scatter!([c2[j] for j in 1:length(c1)], markersize = 1,markerstrokewidth=0, c = :red)
+	scatter([c1[j] for j in 1:length(c1)], markersize = .8,markerstrokewidth=0, c = :white, size = (5000,5000), label=false, aspect_ratio=1, framestyle= :none, background_color= :black)
+	scatter!([c2[j] for j in 1:length(c1)], markersize = .8,markerstrokewidth=0, c = :red)
 	
-	savefig("plots/scatter_" * string(max_denom) * ".svg")
+	savefig("plots/scatter_" * string(max_denom) * ".png");
 end
 
 function main(max_denom)
-	q = generateQDict(max_denom)
-	d = generateDiscriminantsDict(q)
+	if isfile("data/roots_" * string(max_denom) * ".jld2")
+		r = load("data/roots_" * string(max_denom) * ".jld2")
+	else
+		q1 = generateQDict(max_denom)
+		r = generateRoots(q1)
+		r = keys2string(r)
+		save("data/roots_" * string(max_denom) * ".jld2", r)
+	end
 
-	r = generateRoots(q)
-	rs = generateRoots(d)
-
-	save(r, "data/roots_" * string(max_denom) * ".jld2")
-	save(rs, "data/disc_roots_" * string(max_denom) * ".jld2")
+	if isfile("data/disc_roots_" * string(max_denom) * ".jld2")
+		rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
+	else
+		q = generateQDict(max_denom)
+		d = generateDiscriminantsDict(q)
+		rs = generateRoots(d)
+		rs = keys2string(rs)
+		save("data/disc_roots_" * string(max_denom) * ".jld2", rs)
+	end
 
 	r = generateRootset(r)
 	rs = generateRootset(rs)
@@ -171,8 +189,40 @@ function main(max_denom)
 	runQPlot(r,rs,max_denom)
 end
 
-main(200)
+function export2CSV(max_denom)
+	r = load("data/roots_" * string(max_denom) * ".jld2")
+	rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
+
+	r = generateRootset(r)
+	rs = generateRootset(rs)
+
+	c1 = filter(z->abs2(z)<3, r);
+	c2 = filter(z->abs2(z)<3, rs);
+
+	CSV.write("data/roots_" * string(max_denom) * ".csv",c1)
+	CSV.write("data/disc_" * string(max_denom) * ".csv",c2)
+end
 
 
+export2CSV(420)
+rs = generateRootset(rs)
+
+runQPlot(r,rs,max_denom)
+end
+
+function export2CSV(max_denom)
+r = load("data/roots_" * string(max_denom) * ".jld2")
+rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
+
+r = generateRootset(r)
+rs = generateRootset(rs)
+
+c1 = filter(z->abs2(z)<3, r);
+c2 = filter(z->abs2(z)<3, rs);
+
+CSV.write("data/roots_" * string(max_denom) * ".csv",c1)
+CSV.write("data/disc_" * string(max_denom) * ".csv",c2)
+end
 
 
+export2CSV(420)
