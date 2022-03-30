@@ -208,19 +208,4 @@ function export2CSV(max_denom)
 	CSV.write("data/disc_" * string(max_denom) * ".csv",c2)
 end
 
-function export2CSV(max_denom)
-	r = load("data/roots_" * string(max_denom) * ".jld2")
-	rs = load("data/disc_roots_" * string(max_denom) * ".jld2")
-
-	r = generateRootset(r)
-	rs = generateRootset(rs)
-
-	c1 = filter(z->abs2(z)<3, r);
-	c2 = filter(z->abs2(z)<3, rs);
-
-	CSV.write("data/roots_" * string(max_denom) * ".csv",c1)
-	CSV.write("data/disc_" * string(max_denom) * ".csv",c2)
-end
-
-
-export2CSV(420)
+main(600)
